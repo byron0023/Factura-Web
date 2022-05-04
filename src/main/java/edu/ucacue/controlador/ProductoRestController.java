@@ -7,9 +7,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,12 +23,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ucacue.infraestructura.repositorio.ProductoRepositorio;
 import edu.ucacue.modelo.Persona;
 import edu.ucacue.modelo.Producto;
 
+@CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
 @RequestMapping("/api")
 
@@ -32,25 +39,36 @@ public class ProductoRestController {
 	@Autowired
 	private ProductoRepositorio productoRepositorio;
 	
+	//listar productos
 	@GetMapping("/productos")
 	public List<Producto> index() {
 		return productoRepositorio.findAll();
 	}
 	
+	//listar productos con paginacion
+	@GetMapping("/productos/page/{page}")
+	@ResponseStatus(HttpStatus.OK)
+	public Page<Producto> filtrarProductos(@PathVariable Integer page){
+		Pageable pageable = PageRequest.of(page, 8, Sort.by("nombre"));
+		Page<Producto> productos = productoRepositorio.findAll(pageable);
+		return productos;
+	}
+	
+	//listar productos por id
 	@GetMapping("/productos/{id}")
 	public Producto getById(@PathVariable int id) {
-
 		Producto producto = productoRepositorio.findById(id).get();
 		return producto;
 	}
 	
-	@GetMapping("/productos/nombre")
-	public Producto getByNombre(@RequestParam(name = "nombre") String nombre) {
-
-		Producto productos = productoRepositorio.findByNombreLike(nombre);
+	//listar productos por nombre
+	@GetMapping("/productos/buscar/{nombre}")
+	public List<Producto> getByNombre(@PathVariable(name = "nombre") String nombre) {
+		List<Producto> productos = productoRepositorio.findAllByNombre(nombre);
 		return productos;
 	}
 	
+	//guardar producto
 	@PostMapping("/productos")
 	public ResponseEntity<?> saveProducto(@RequestBody Producto producto, BindingResult result) {
 		Producto productoGrabar;
@@ -78,6 +96,7 @@ public class ProductoRestController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
+	//actualizar productos por id
 	@PutMapping("/productos/{id}")
 	public ResponseEntity<?> modificarProducto(@RequestBody Producto producto, BindingResult result, @PathVariable int id) {
 		
@@ -125,6 +144,7 @@ public class ProductoRestController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
+	//borrar productos por id
 	@DeleteMapping("/productos/{id}")
 	public ResponseEntity<?> eliminarProducto(@PathVariable int id) {
 		

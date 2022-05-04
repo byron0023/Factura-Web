@@ -1,7 +1,6 @@
 package edu.ucacue.modelo;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "detalles_facturas")
@@ -18,15 +18,16 @@ public class DetalleFactura implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int idFactura;
+	private Integer idFactura;
 
 	private int cantidad;
 	private double valorVenta;
-
+	
 	@ManyToOne
 	@JoinColumn(name = "producto_fk")
 	private Producto producto;
 
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "factura_cabecera_fk")
 	private FacturaCabecera facturaCabecera;
@@ -41,14 +42,13 @@ public class DetalleFactura implements Serializable{
 	}
 
 	public DetalleFactura() {
-
 	}
 
-	public int getIdFactura() {
+	public Integer getIdFactura() {
 		return idFactura;
 	}
 
-	public void setIdFactura(int idFactura) {
+	public void setIdFactura(Integer idFactura) {
 		this.idFactura = idFactura;
 	}
 

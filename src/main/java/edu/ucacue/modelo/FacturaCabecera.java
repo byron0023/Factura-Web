@@ -3,7 +3,6 @@ package edu.ucacue.modelo;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,7 +14,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import edu.ucacue.modelo.DetalleFactura;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "facturas_cabeceras")
@@ -25,9 +26,10 @@ public class FacturaCabecera  implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 
-	@Column(unique = true)
+	@Generated(GenerationTime.INSERT)
+	@Column(columnDefinition = "serial ", unique = true)
 	private int numeroFactura;
 	
 	private Date fechaEmision;
@@ -37,18 +39,18 @@ public class FacturaCabecera  implements Serializable{
 	@JoinColumn(name = "persona_fk")
 	private Persona persona;
 
-	@OneToMany(mappedBy = "idFactura", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JsonManagedReference
+	@OneToMany(mappedBy = "facturaCabecera", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<DetalleFactura> detallesFacturas;
 
 	public FacturaCabecera() {
-
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -90,11 +92,11 @@ public class FacturaCabecera  implements Serializable{
 
 	public void setDetallesFacturas(List<DetalleFactura> detallesFacturas) {
 		this.detallesFacturas = detallesFacturas;
-		/*double total = 0;
+		double total = 0;
 		for (DetalleFactura detalleFactura : detallesFacturas) {
 			total = total + detalleFactura.getValorVenta();
 		}
-		this.totalFactura = total;*/
+		this.totalFactura = total;
 	}
 	
 }

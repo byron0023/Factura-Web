@@ -24,13 +24,13 @@ public class Producto {
 	
 	private String descripcion;
 	private double precio;
-	private String stock;
+	private int stock;
 	
 	public Producto() {
 		super();
 	}
 
-	public Producto(int id, String nombre, String descripcion, double precio, String stock) {
+	public Producto(int id, String nombre, String descripcion, double precio, int stock) {
 		super();
 		this.id = id;
 		this.nombre = nombre;
@@ -71,11 +71,11 @@ public class Producto {
 		this.precio = precio;
 	}
 
-	public String getStock() {
+	public int getStock() {
 		return stock;
 	}
 
-	public void setStock(String stock) {
+	public void setStock(int stock) {
 		this.stock = stock;
 	}
 	

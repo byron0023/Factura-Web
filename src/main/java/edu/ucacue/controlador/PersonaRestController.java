@@ -3,26 +3,30 @@ package edu.ucacue.controlador;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import edu.ucacue.infraestructura.repositorio.PersonaRepositorio;
 import edu.ucacue.modelo.Persona;
 
-//@CrossOrigin(origins = {"http://localhost:4200"})
+@CrossOrigin(origins = {"*"})
 @RestController
 @RequestMapping("/api")
 
@@ -31,11 +35,22 @@ public class PersonaRestController {
 	@Autowired
 	private PersonaRepositorio personaRepositorio;
 	
+	//listar personas
 	@GetMapping("/clientes")
 	public List<Persona> index() {
 		return personaRepositorio.findAll();
 	}
 	
+	//listar personas con paginacion
+	@GetMapping("/clientes/page/{page}")
+	@ResponseStatus(HttpStatus.OK)
+	public Page<Persona> filtrarPersonas(@PathVariable Integer page){
+		Pageable pageable = PageRequest.of(page, 8, Sort.by("nombre"));
+		Page<Persona> personas = personaRepositorio.findAll(pageable);
+		return personas;
+	}
+	
+	//listar personas por id
 	@GetMapping("/clientes/{id}")
 	public Persona getById(@PathVariable int id) {
 
@@ -43,19 +58,21 @@ public class PersonaRestController {
 		return persona;
 	}
 	
-	@GetMapping("/clientes/nombre")
-	public List<Persona> getByNombre(@RequestParam(name = "nombre") String nombre) {
-
+	//listar persona por nombre
+	@GetMapping("/clientes/buscar/{nombre}")
+	public List<Persona> getByNombre(@PathVariable(name = "nombre") String nombre) {
 		List<Persona> personas = personaRepositorio.findAllByNombre(nombre);
 		return personas;
 	}
 	
+	//listar los primeros
 	@GetMapping("/clientes/primeros")
 	public List<Persona> primeros() {
 		List<Persona> personasPrimeros = personaRepositorio.findAll();
 		return personasPrimeros.subList(0, 1);
 	}
 	
+	//guardar persona
 	@PostMapping("/cliente")
 	public ResponseEntity<?> saveCliente(@RequestBody Persona persona, BindingResult result) {
 		Persona personaGrabar;
@@ -83,6 +100,7 @@ public class PersonaRestController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
+	//actualizar persona por id
 	@PutMapping("/cliente/{id}")
 	public ResponseEntity<?> modificarCliente(@RequestBody Persona persona, BindingResult result,
 			@PathVariable int id) {
@@ -138,6 +156,7 @@ public class PersonaRestController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
+	//eliminar persona por id
 	@DeleteMapping("/cliente/{id}")
 	public ResponseEntity<?> eliminarCliente(
 			@PathVariable int id) {
